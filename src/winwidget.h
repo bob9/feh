@@ -120,6 +120,10 @@ struct __winwidget {
 #ifdef HAVE_INOTIFY
 	int inotify_wd;
 #endif
+
+	time_t last_click_time; // For double click detection
+	int last_click_x;       // For double click detection
+	int last_click_y;       // For double click detection
 };
 
 #ifdef HAVE_INOTIFY

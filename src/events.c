@@ -195,6 +195,9 @@ static void feh_event_handle_ButtonPress(XEvent * ev)
 {
 	winwidget winwid = NULL;
 	unsigned int state, button;
+	struct timeval tv;
+	time_t now;
+	int double_click = 0;
 
 	/* get the heck out if it's a mouse-click on the
 	   cover, we'll hide the menus on release */
@@ -209,6 +212,24 @@ static void feh_event_handle_ButtonPress(XEvent * ev)
 
 	state = ev->xbutton.state & (ControlMask | ShiftMask | Mod1Mask | Mod4Mask);
 	button = ev->xbutton.button;
+
+	// Double click detection: within 400ms and 5px of last click
+	gettimeofday(&tv, NULL);
+	now = tv.tv_sec * 1000 + tv.tv_usec / 1000; // ms
+	if (winwid->last_click_time > 0 &&
+	    (now - winwid->last_click_time < 400) &&
+	    abs(ev->xbutton.x - winwid->last_click_x) < 5 &&
+	    abs(ev->xbutton.y - winwid->last_click_y) < 5) {
+		double_click = 1;
+	}
+	winwid->last_click_time = now;
+	winwid->last_click_x = ev->xbutton.x;
+	winwid->last_click_y = ev->xbutton.y;
+
+	if (double_click) {
+		feh_clean_exit();
+		return;
+	}
 
 	if (!opt.no_menus && feh_is_bb(EVENT_toggle_menu, button, state)) {
 		D(("Menu Button Press event\n"));
