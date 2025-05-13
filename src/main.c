@@ -101,6 +101,11 @@ int main(int argc, char **argv)
 		eprintf("Invalid option combination");
 	}
 
+	/* Hide mouse cursor for all windows */
+	for (int i = 0; i < window_num; i++) {
+		winwidget_set_pointer(windows[i], 0);
+	}
+
 	/* main event loop */
 	while (feh_main_iteration(1));
 
